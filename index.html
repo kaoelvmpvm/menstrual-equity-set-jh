@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#243047">
+  <meta name="description" content="王子脫魯記 SET：平權偵察隊。透過十個童話情境辨識月經迷思、性別偏見與資源取得障礙。">
+  <title>王子脫魯記 SET｜平權偵察隊</title>
+  <link rel="stylesheet" href="./assets/style.css">
+  <script defer src="./data/questions.js"></script>
+  <script defer src="./assets/app.js"></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="王子脫魯記 SET 首頁">
+        <span class="brand-seal" aria-hidden="true">SET</span>
+        <span class="brand-text"><strong>王子脫魯記</strong><small>平權偵察隊 · 國中版</small></span>
+      </a>
+      <div class="header-right"><span class="subject-pill">性 J3 × 性 J10</span><button class="subtle-button" id="resetBtn" type="button">重新開始</button></div>
+    </header>
+    <main>
+      <section id="homeScreen" class="screen home-screen" aria-labelledby="homeTitle">
+        <div class="hero">
+          <div class="hero-topline"><span class="eyebrow">THE FAIRYTALE CASEBOOK</span><span class="sparkle" aria-hidden="true">✦ ✧ ✦</span></div>
+          <div class="hero-grid">
+            <div class="hero-copy">
+              <p class="kicker">月經平權 × 情境式認知檢核</p>
+              <h1 id="homeTitle">王子脫魯記 <em>SET</em><span class="title-next">平權偵察隊</span></h1>
+              <p class="hero-intro">王子了解月經之後，王國裡的問題就全部解決了嗎？有些困難來自錯誤觀念，有些來自別人的偏見，也有些藏在資源取得的細節裡。</p>
+              <p class="hero-intro second">加入偵察隊，跟著角色閱讀線索、作出判斷；答錯可以重新思考，沒有人會看到你的即時作答。</p>
+              <div class="hero-actions"><button class="primary-button" id="startBtn" type="button">開始十項調查 <span aria-hidden="true">→</span></button><button class="secondary-button" id="resumeBtn" type="button" hidden>繼續上次進度</button></div>
+              <p class="small-note">約20–30分鐘 · 10個任務 · 可自由重試 · 無需登入</p>
+            </div>
+            <div class="hero-art" aria-label="王子的角色圖片預留位置"><div class="hero-frame"><div class="empty-portrait"><span class="frame-corners" aria-hidden="true">⌜　　⌝</span><span class="empty-portrait-mark" aria-hidden="true">◇</span><strong>角色圖片待補</strong><small>王子・主視覺佔位區</small><span class="frame-corners" aria-hidden="true">⌞　　⌟</span></div></div><span class="hero-decoration deco-one" aria-hidden="true">✦</span><span class="hero-decoration deco-two" aria-hidden="true">✧</span></div>
+          </div>
+        </div>
+        <div class="home-section">
+          <div class="section-heading"><div><p class="overline">THE FOUR CHAPTERS</p><h2>四章・十項調查任務</h2></div><p>從生理知識出發，逐步看見性別偏見及用品取得障礙。</p></div>
+          <div class="chapter-preview" id="chapterPreview"></div>
+        </div>
+        <div class="home-section">
+          <div class="section-heading"><div><p class="overline">THE CAST</p><h2>旅途中的四位角色</h2></div><p>角色立繪尚未製作；此版本先保留可替換的圖片框。</p></div>
+          <div class="cast-grid" id="castGrid"></div>
+        </div>
+        <div class="teacher-note"><strong>給學習者</strong><p>本活動使用虛構情境，不需要分享自己的經期經驗。完成十題即達成基本通關；若希望挑戰進階表現，可在結束後寫下你發現的偏見與資源障礙，以及它們的影響。</p></div>
+      </section>
+
+      <section id="gameScreen" class="screen game-screen" aria-labelledby="gameTitle" hidden>
+        <div class="game-nav"><button id="backHomeBtn" type="button" class="text-button">← 回首頁</button><span id="chapterLabel" class="chapter-label"></span><span id="counterLabel" class="counter-label"></span></div>
+        <div class="progress-track" role="progressbar" aria-label="任務進度" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="game-grid">
+          <aside class="story-panel" aria-label="故事場景">
+            <div class="story-panel-top"><span id="caseNo">調查 01</span><span id="caseTopic">概念調查</span></div>
+            <div class="story-portrait" id="storyPortrait"><div class="portrait-placeholder"><span class="placeholder-symbol">◇</span><span>角色圖片待補</span><small id="portraitName">王子</small></div></div>
+            <div class="speaker-row"><span class="speaker-dot" aria-hidden="true"></span><strong id="speakerName">王子</strong><span id="speakerRole">探究引導者</span></div>
+            <p class="scene-text" id="sceneText"></p>
+          </aside>
+          <div class="question-panel">
+            <div class="question-top"><span class="question-type" id="questionType">認知檢核</span><span class="attempts-label" id="attemptsLabel">可重新嘗試</span></div>
+            <h2 id="gameTitle"></h2>
+            <p class="question-helper">請根據故事線索選出最合理的判斷。選錯會得到提示，可以再試一次。</p>
+            <div class="option-list" id="optionList" role="group" aria-label="作答選項"></div>
+            <div id="feedbackBox" class="feedback-box" role="status" aria-live="polite" hidden><div class="feedback-heading" id="feedbackHeading"></div><p id="feedbackText"></p></div>
+            <div class="question-bottom"><button id="prevBtn" class="secondary-button" type="button">上一項任務</button><button id="nextBtn" class="primary-button" type="button" hidden>下一項任務 →</button></div>
+          </div>
+        </div>
+        <p class="privacy-line">你的作答紀錄只儲存在這台裝置的瀏覽器中；可在結算頁自行匯出，不會自動上傳給教師。</p>
+      </section>
+
+      <section id="resultScreen" class="screen result-screen" aria-labelledby="resultTitle" hidden>
+        <div class="result-hero"><span class="overline">MISSION COMPLETE</span><span class="result-emblem" aria-hidden="true">✦</span><h1 id="resultTitle">十項調查完成！</h1><p>你已完成 SET 基本認知檢核。你可以繼續進行 A 等進階分析，讓老師看到你的個人理解。</p><div class="result-grade"><strong>B</strong><span>基本通關達標</span></div></div>
+        <div class="result-content">
+          <section class="result-card" aria-labelledby="statTitle"><h2 id="statTitle">我的學習歷程</h2><div class="stat-grid"><div><strong id="statFirst">0</strong><small>首次答對</small></div><div><strong id="statRetry">0</strong><small>修正次數</small></div><div><strong id="statFinish">10 / 10</strong><small>完成任務</small></div></div><p class="muted">以上數據只描述這次互動作答的歷程，不直接等於真實生活中的行為表現。</p></section>
+          <section class="result-card" aria-labelledby="advancedTitle"><div class="badge-line"><span class="advanced-badge">A 等進階挑戰</span><small>由教師依回答內容判定</small></div><h2 id="advancedTitle">我的平權調查報告</h2><p class="card-copy">請各指出一個你在旅途中發現的問題，並說明它可能造成的影響。可以引用遊戲中的事件，也可以提出自己的例子。</p>
+            <label for="biasAnswer" class="field-label">① 性別偏見：你發現哪一種月經相關的刻板印象或偏見？可能造成什麼影響？</label>
+            <textarea id="biasAnswer" rows="4" maxlength="800" placeholder="例如：我發現……，這種想法可能使……"></textarea>
+            <label for="resourceAnswer" class="field-label">② 資源障礙：你發現哪一種生理用品取得障礙？可能造成什麼影響？</label>
+            <textarea id="resourceAnswer" rows="4" maxlength="800" placeholder="例如：即使……，仍可能因為……而……"></textarea>
+            <p class="review-note" id="reviewNote">填寫後請按「保存我的分析」。完成填寫不代表自動取得 A 等，仍須由教師判讀。</p>
+            <button class="primary-button" id="saveAdvancedBtn" type="button">保存我的分析</button>
+          </section>
+          <section class="result-card" aria-labelledby="exportTitle"><h2 id="exportTitle">保存學習成果</h2><p class="card-copy">可匯出匿名學習紀錄，包含每題首次作答、重試及最終結果。請依教師指示繳交，不必填寫姓名。</p><div class="export-buttons"><button id="exportTextBtn" class="primary-button" type="button">下載學習紀錄（文字）</button><button id="exportJsonBtn" class="secondary-button" type="button">下載完整資料（JSON）</button><button id="copySummaryBtn" class="secondary-button" type="button">複製學習摘要</button></div><p class="copy-status" id="exportStatus" role="status" aria-live="polite"></p></section>
+          <div class="result-bottom"><button id="reviewBtn" class="secondary-button" type="button">回顧我的答題</button><button id="restartBtn" class="text-button" type="button">重新開始整趟旅程</button></div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer"><span>《王子脫魯記 SET：平權偵察隊》 · 國中月經平權數位輔助學習</span><span>教學焦點：性 J3・性 J10　｜　人物圖片待補</span></footer>
+  </div>
+</body>
+</html>
