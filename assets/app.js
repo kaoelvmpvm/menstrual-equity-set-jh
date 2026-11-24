@@ -8,7 +8,7 @@
   var KEY = "menstrual-equity-set-jh.v2";
   var CONFIG = window.SET_CONFIG || {};
   var SHEET_URL = typeof CONFIG.collectionEndpoint==="string" ? CONFIG.collectionEndpoint.trim() : "";
-  var CLOUD_READY = /^https:\/\/script\.google\.com\/macros\/s\/[a-zA-Z0-9_-]+\/exec$/.test(SHEET_URL);
+  var CLOUD_READY = /^https:\/\/script\.google\.com\/(?:a\/macros\/[a-zA-Z0-9.-]+\/s|macros\/s)\/[a-zA-Z0-9_-]+\/exec$/.test(SHEET_URL);
   var cloudTimeout = null;
   var TOTAL = DATA.questions.length;
   var byId = function (id) { return document.getElementById(id); };
