@@ -5,11 +5,20 @@
     document.body.innerHTML = "<p style='padding:32px'>題庫讀取失敗，請重新整理或檢查 data/questions.js。</p>";
     return;
   }
-  var KEY = "menstrual-equity-set-jh.v1";
+  var KEY = "menstrual-equity-set-jh.v2";
+  var CONFIG = window.SET_CONFIG || {};
+  var SHEET_URL = typeof CONFIG.collectionEndpoint==="string" ? CONFIG.collectionEndpoint.trim() : "";
+  var CLOUD_READY = /^https:\/\/script\.google\.com\/macros\/s\/[a-zA-Z0-9_-]+\/exec$/.test(SHEET_URL);
+  var cloudTimeout = null;
   var TOTAL = DATA.questions.length;
   var byId = function (id) { return document.getElementById(id); };
   var refs = {
     home:byId("homeScreen"),game:byId("gameScreen"),result:byId("resultScreen"),
+    studentClass:byId("studentClass"),studentSeat:byId("studentSeat"),
+    studentName:byId("studentName"),privacyConsent:byId("privacyConsent"),identityError:byId("identityError"),
+    cloudConsent:byId("cloudConsent"),submitCloud:byId("submitCloudBtn"),
+    cloudTitle:byId("cloudStatusTitle"),cloudDesc:byId("cloudStatusDescription"),
+    submitFrame:byId("submissionFrame"),biasSelect:byId("biasSelect"),resourceSelect:byId("resourceSelect"),
     cast:byId("castGrid"),chapterPreview:byId("chapterPreview"),
     start:byId("startBtn"),resume:byId("resumeBtn"),reset:byId("resetBtn"),
     backHome:byId("backHomeBtn"),prev:byId("prevBtn"),next:byId("nextBtn"),
@@ -53,14 +62,15 @@
   function newState() {
     return {version:DATA.version,runId:"SET-"+Math.random().toString(36).slice(2,10).toUpperCase(),
       startedAt:new Date().toISOString(),finishedAt:null,current:0,answers:{},
-      advanced:{bias:"",resource:"",savedAt:null}};
+      student:{className:"",seatNo:"",name:"",consent:false},
+      advanced:{biasOption:"",bias:"",resourceOption:"",resource:"",savedAt:null}};
   }
   function load() {
     try {
       var raw=localStorage.getItem(KEY);
       if (!raw) return newState();
       var obj=JSON.parse(raw);
-      if (!obj || obj.version!==DATA.version || !obj.answers || !obj.advanced) return newState();
+      if (!obj || obj.version!==DATA.version || !obj.answers || !obj.advanced || !obj.student) return newState();
       obj.current=Math.max(0,Math.min(TOTAL-1,Number(obj.current)||0));
       return obj;
     } catch(e) {hasStorage=false;return newState();}
@@ -124,7 +134,34 @@
     refs.resume.hidden=!hasProgress;
     refs.start.textContent=hasProgress?"開始新一輪調查 →":"開始十項調查 →";
   }
-  function home() {setupHome();show("home");}
+  function home() {
+    setupHome();
+    refs.studentClass.value=state.student.className||"";
+    refs.studentSeat.value=state.student.seatNo||"";
+    refs.studentName.value=state.student.name||"";
+    refs.privacyConsent.checked=!!state.student.consent;
+    refs.identityError.textContent="";
+    show("home");
+  }
+  function captureIdentity() {
+    var className=refs.studentClass.value.trim();
+    var seatNo=refs.studentSeat.value.trim();
+    var name=refs.studentName.value.trim();
+    if (!/^[\\p{L}\\p{N}\\- ]{1,20}$/u.test(className)) {
+      refs.identityError.textContent="請填寫班級（例如：815）。";refs.studentClass.focus();return false;
+    }
+    if (!/^\\d{1,3}$/.test(seatNo) || Number(seatNo)<1 || Number(seatNo)>99) {
+      refs.identityError.textContent="請填寫正確的座號。";refs.studentSeat.focus();return false;
+    }
+    if (!/^[\\p{L}\\p{M} ·．]{1,30}$/u.test(name)) {
+      refs.identityError.textContent="請填寫正確姓名。";refs.studentName.focus();return false;
+    }
+    if (!refs.privacyConsent.checked) {
+      refs.identityError.textContent="請先閱讀並勾選學習資料使用說明。";refs.privacyConsent.focus();return false;
+    }
+    state.student={className:className,seatNo:seatNo,name:name,consent:true};
+    persist();refs.identityError.textContent="";return true;
+  }
   function findChapter(id) {
     return DATA.chapters.find(function(c){return c.id===id;})||DATA.chapters[0];
   }
@@ -232,12 +269,13 @@
     refs.first.textContent=String(firstCorrectCount());
     refs.retry.textContent=String(retryCount());
     refs.finish.textContent=completedCount()+" / "+TOTAL;
+    refs.biasSelect.value=state.advanced.biasOption||"";
+    refs.resourceSelect.value=state.advanced.resourceOption||"";
     refs.bias.value=state.advanced.bias||"";
     refs.resource.value=state.advanced.resource||"";
     refs.reviewNote.classList.remove("is-saved");
-    refs.reviewNote.textContent=state.advanced.savedAt?
-      "已保存進階分析。是否達到 A 等，仍由教師依內容判讀。":
-      "填寫後請按「保存我的分析」。填寫不代表自動取得 A 等，仍須由教師判讀。";
+    refs.reviewNote.textContent="";
+    setupCloudStatus();
     refs.exportStatus.textContent="";
     setupHome();
     show("result");
@@ -245,26 +283,26 @@
   function saveAdvanced() {
     var bias=refs.bias.value.trim();
     var resource=refs.resource.value.trim();
-    state.advanced={bias:bias,resource:resource,savedAt:new Date().toISOString()};
+    state.advanced={biasOption:refs.biasSelect.value,bias:bias,
+      resourceOption:refs.resourceSelect.value,resource:resource,savedAt:new Date().toISOString()};
     persist();
     refs.reviewNote.classList.add("is-saved");
-    if (!bias || !resource) {
-      refs.reviewNote.textContent="已保存草稿。完整進階分析需填寫兩個問題，並說明各自的影響。";
-    } else {
-      refs.reviewNote.textContent="進階分析已保存。請匯出紀錄供教師評閱；本網站不會自動核定 A 等。";
-    }
+    refs.reviewNote.textContent="已保存。";
   }
   function answerLabel(q,index) {
     return index>=0 && index<q.options.length ? String.fromCharCode(65+index)+"．"+q.options[index].text:"未作答";
   }
   function buildExport() {
     var advanced={
+      biasOption:refs.result.hidden?state.advanced.biasOption:refs.biasSelect.value,
       bias:refs.result.hidden?state.advanced.bias:refs.bias.value.trim(),
+      resourceOption:refs.result.hidden?state.advanced.resourceOption:refs.resourceSelect.value,
       resource:refs.result.hidden?state.advanced.resource:refs.resource.value.trim(),
       savedAt:state.advanced.savedAt
     };
     return {
       activity:DATA.title,version:DATA.version,anonymousSession:state.runId,
+      runId:state.runId,student:{...state.student},consent:!!state.student.consent,
       startedAt:state.startedAt,finishedAt:state.finishedAt,
       grading:{basic:allDone()?"B（通關）":"C（未通關）",
         advanced:"A 等需教師閱讀學生文字後判定，不由系統自動給分"},
@@ -274,7 +312,8 @@
         return {id:q.id,chapter:q.chapter,concept:q.principle,
           question:q.title,firstResponse:r.attempts.length?answerLabel(q,r.attempts[0].choice):"未作答",
           attempts:r.attempts.map(function (a) {
-            return {selection:answerLabel(q,a.choice),correct:a.correct,at:a.at};
+            return {choiceCode:String.fromCharCode(65+a.choice),
+              selection:answerLabel(q,a.choice),correct:a.correct,at:a.at};
           }),
           correct:r.correct,finalResponse:r.correct?answerLabel(q,q.correct):"尚未通過"};
       }),advanced:advanced
@@ -283,7 +322,8 @@
   function summaryText() {
     var data=buildExport();
     var rows=[
-      data.activity,"匿名學習代碼："+data.anonymousSession,
+      data.activity,"學習代碼："+data.anonymousSession,
+      "班級："+data.student.className+"　座號："+data.student.seatNo+"　姓名："+data.student.name,
       "教材版本："+data.version,
       "作答開始："+data.startedAt,
       "完成時間："+(data.finishedAt||"尚未完成"),
@@ -301,10 +341,12 @@
       });
     });
     rows.push("","【A等進階分析】",
-      "性別偏見與可能影響：",data.advanced.bias||"（未填寫）",
-      "資源障礙與可能影響：",data.advanced.resource||"（未填寫）",
+      "偏見問題選擇：",data.advanced.biasOption||"（未選擇）",
+      "原因與可能影響：",data.advanced.bias||"（未填寫）",
+      "資源障礙選擇：",data.advanced.resourceOption||"（未選擇）",
+      "原因與可能影響：",data.advanced.resource||"（未填寫）",
       "","提醒：A等由教師評閱，不由系統自動核定。",
-      "資料保存：原紀錄僅儲存在目前裝置的瀏覽器，不會自動上傳。");
+      "資料保存：作答歷程先暫存於裝置。教師設定完成後可手動送交試算表。");
     return rows.join("\n");
   }
   function download(filename,contents,mime) {
@@ -340,13 +382,17 @@
     persist();home();
   }
   refs.start.addEventListener("click",function() {
+    if (!captureIdentity()) return;
+    var currentStudent={...state.student};
     if (completedCount()>0) {
       if (!window.confirm("將開始新一輪並清除目前進度。建議先完成或匯出；確定嗎？")) return;
       state=newState();
+      state.student=currentStudent;
     }
     persist();goGame(0);
   });
   refs.resume.addEventListener("click",function(){
+    if (!captureIdentity()) return;
     if (allDone()) {result();return;}
     var firstUnfinished=DATA.questions.findIndex(function(q){return !isDone(q);});
     goGame(firstUnfinished<0?state.current:firstUnfinished);
@@ -374,6 +420,8 @@
     copySummary();
   });
   // 維持進階文字在頁面內的狀態：其他分頁或重新整理時可保留已編輯內容。
+  refs.biasSelect.addEventListener("change",function(){state.advanced.biasOption=refs.biasSelect.value;persist();});
+  refs.resourceSelect.addEventListener("change",function(){state.advanced.resourceOption=refs.resourceSelect.value;persist();});
   refs.bias.addEventListener("input",function(){state.advanced.bias=refs.bias.value;persist();});
   refs.resource.addEventListener("input",function(){state.advanced.resource=refs.resource.value;persist();});
   // 按鈕可透過鍵盤操作，答對後須自行選擇下一題，避免自動跳頁。
