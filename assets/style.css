@@ -37,3 +37,7 @@
 /* Cloud connectivity diagnostic link */
 .cloud-test-link{display:inline-block;margin-top:8px;color:#235f66;font-size:12px;text-decoration:underline;text-underline-offset:3px;line-height:1.6}
 .cloud-test-link:hover{color:#163e47}
+
+/* 共享裝置提示，減少把前一位學生的答題軌跡誤接到下一位學生名下。 */
+.session-notice{margin:14px 0 0;padding:10px 13px;border:1px solid rgba(232,194,140,.56);background:rgba(198,143,81,.14);border-radius:9px;font-size:12px;line-height:1.8;color:#f6debd}
+.shared-device-note{margin:9px 0 0;font-size:12px;line-height:1.85;color:#775f52}
