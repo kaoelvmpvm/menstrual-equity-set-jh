@@ -18,7 +18,7 @@
         <span class="brand-seal" aria-hidden="true">SET</span>
         <span class="brand-text"><strong>王子脫魯記</strong><small>平權偵察隊 · 國中版</small></span>
       </a>
-      <div class="header-right"><span class="subject-pill">性 J3 × 性 J10</span><button class="subtle-button" id="resetBtn" type="button">重新開始</button></div>
+      <div class="header-right"><span class="subject-pill">性 J3 × 性 J10</span><button class="subtle-button" id="resetBtn" type="button">清除本機資料</button></div>
     </header>
     <main>
       <section id="homeScreen" class="screen home-screen" aria-labelledby="homeTitle">
@@ -29,7 +29,7 @@
               <p class="kicker">月經平權 × 情境式認知檢核</p>
               <h1 id="homeTitle">王子脫魯記 <em>SET</em><span class="title-next">平權偵察隊</span></h1>
               <p class="hero-intro">王子了解月經之後，王國裡的問題就全部解決了嗎？有些困難來自錯誤觀念，有些來自別人的偏見，也有些藏在資源取得的細節裡。</p>
-              <p class="hero-intro second">加入偵察隊，跟著角色閱讀線索、作出判斷；答錯可以重新思考，沒有人會看到你的即時作答。</p>
+              <p class="hero-intro second">加入偵察隊，跟著角色閱讀線索、作出判斷；答錯可以重新思考。作答過程先保存在這台裝置，完成後再自行送交老師。</p>
               <div class="identity-card" aria-label="學習資料">
                 <h2>登記學習資料</h2>
                 <p class="identity-description">請填寫班級、座號及姓名，方便老師辨識學習紀錄；不需要填寫任何個人經期經驗。</p>
@@ -41,6 +41,7 @@
                 <label class="consent-line"><input id="privacyConsent" type="checkbox" /><span>我知道老師將收集上述資料、作答紀錄及我的文字分析，供本次學習評量使用。</span></label>
                 <p id="identityError" class="identity-error" role="alert" aria-live="polite"></p>
               </div>
+              <p id="sessionNotice" class="session-notice" role="status" hidden></p>
               <div class="hero-actions"><button class="primary-button" id="startBtn" type="button">開始十項調查 <span aria-hidden="true">→</span></button><button class="secondary-button" id="resumeBtn" type="button" hidden>繼續上次進度</button></div>
               <p class="small-note">約20–30分鐘 · 10個任務 · 可自由重試 · 無需登入 Google 帳號</p>
             </div>
@@ -118,9 +119,9 @@
                 <div><strong id="cloudStatusTitle">Google 試算表尚未連線</strong><p id="cloudStatusDescription">老師完成連線設定後，這裡就能送出學習紀錄。</p><a id="cloudTestLink" href="#" target="_blank" rel="noopener noreferrer" class="cloud-test-link" hidden>先檢查 Google 接收端是否正常</a></div>
                 <button type="button" id="submitCloudBtn" class="primary-button" disabled>送出學習紀錄</button>
               </div>
-              <label class="consent-line submission-consent"><input type="checkbox" id="cloudConsent" checked /><span>同意將班級、座號、姓名、作答軌跡與分析文字送到老師的試算表。</span></label><div class="export-buttons"><button id="exportTextBtn" class="primary-button" type="button">下載學習紀錄（文字）</button><button id="exportJsonBtn" class="secondary-button" type="button">下載完整資料（JSON）</button><button id="copySummaryBtn" class="secondary-button" type="button">複製學習摘要</button></div><p class="copy-status" id="exportStatus" role="status" aria-live="polite"></p></section>
+              <label class="consent-line submission-consent"><input type="checkbox" id="cloudConsent" /><span>同意將班級、座號、姓名、作答軌跡與分析文字送到老師的試算表。</span></label><div class="export-buttons"><button id="exportTextBtn" class="primary-button" type="button">下載學習紀錄（文字）</button><button id="exportJsonBtn" class="secondary-button" type="button">下載完整資料（JSON）</button><button id="copySummaryBtn" class="secondary-button" type="button">複製學習摘要</button></div><p class="copy-status" id="exportStatus" role="status" aria-live="polite"></p><p class="shared-device-note">使用共用電腦時，確認 Google 回執顯示儲存成功後，記得清除這台裝置的個人資料與作答紀錄。</p></section>
           <iframe id="submissionFrame" name="setSubmissionFrame" hidden title="學習紀錄送出"></iframe>
-          <div class="result-bottom"><button id="reviewBtn" class="secondary-button" type="button">回顧我的答題</button><button id="restartBtn" class="text-button" type="button">重新開始整趟旅程</button></div>
+          <div class="result-bottom"><button id="reviewBtn" class="secondary-button" type="button">回顧我的答題</button><button id="restartBtn" class="text-button" type="button">清除本機資料並重新開始</button></div>
         </div>
       </section>
     </main>
