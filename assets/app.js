@@ -381,6 +381,79 @@
     state=newState();
     persist();home();
   }
+
+  function setupCloudStatus() {
+    refs.submitCloud.disabled=!CLOUD_READY;
+    refs.cloudTitle.textContent=CLOUD_READY?"可將學習紀錄送交教師":"Google 試算表尚未連線";
+    refs.cloudDesc.textContent=CLOUD_READY?
+      "送出後會保存班級、座號、姓名、每題作答歷程及進階分析。":
+      "老師完成 Google Apps Script 連線設定後即可送出；目前仍可下載紀錄備份。";
+  }
+  function captureAdvanced() {
+    state.advanced={
+      biasOption:refs.biasSelect.value,
+      bias:refs.bias.value.trim(),
+      resourceOption:refs.resourceSelect.value,
+      resource:refs.resource.value.trim(),
+      savedAt:new Date().toISOString()
+    };
+    persist();
+  }
+  function submitToCloud() {
+    if (!CLOUD_READY || !allDone()) return;
+    if (!state.student || !state.student.className || !state.student.seatNo ||
+        !state.student.name || !state.student.consent) {
+      refs.exportStatus.textContent="學習身分資料尚未完整，請回首頁填寫。";
+      return;
+    }
+    if (!refs.cloudConsent.checked) {
+      refs.exportStatus.textContent="請先確認是否同意將學習紀錄送交教師。";
+      return;
+    }
+    captureAdvanced();
+    var data=buildExport();
+    var payload={
+      runId:data.runId,version:data.version,student:data.student,
+      consent:true,startedAt:data.startedAt,finishedAt:data.finishedAt,
+      stats:data.stats,advanced:data.advanced,questions:data.questions
+    };
+    // 使用跨來源表單 POST 與隱藏 iframe，避免公開存放試算表憑證。
+    // 僅伺服器確認回傳 success:true 才顯示已儲存。
+    var form=document.createElement("form");
+    form.method="POST";form.action=SHEET_URL;form.target="setSubmissionFrame";
+    form.style.display="none";
+    var field=document.createElement("input");
+    field.type="hidden";field.name="payload";field.value=JSON.stringify(payload);
+    form.append(field);
+    document.body.append(form);
+    refs.submitCloud.disabled=true;
+    refs.exportStatus.textContent="正在送出學習紀錄……";
+    if (cloudTimeout) clearTimeout(cloudTimeout);
+    cloudTimeout=setTimeout(function(){
+      refs.submitCloud.disabled=false;
+      refs.exportStatus.textContent="目前無法確認雲端是否儲存成功。請檢查教師試算表，或先下載備份。";
+      cloudTimeout=null;
+    },18000);
+    try {form.submit();} catch(err) {
+      if (cloudTimeout) clearTimeout(cloudTimeout);
+      cloudTimeout=null;
+      refs.submitCloud.disabled=false;
+      refs.exportStatus.textContent="無法送出，請先下載學習紀錄備份。";
+    }
+    form.remove();
+  }
+  window.addEventListener("message",function(event){
+    if (!refs.submitFrame || event.source!==refs.submitFrame.contentWindow) return;
+    var data=event.data;
+    if (!data || data.type!=="SET_SHEET_RESPONSE" || data.sessionId!==state.runId) return;
+    if (cloudTimeout) clearTimeout(cloudTimeout);
+    cloudTimeout=null;
+    refs.submitCloud.disabled=false;
+    refs.exportStatus.textContent=data.success?
+      "教師試算表已確認收到學習紀錄。":"雲端儲存未完成。請稍後再送一次，或下載備份。";
+  });
+  refs.submitCloud.addEventListener("click",submitToCloud);
+
   refs.start.addEventListener("click",function() {
     if (!captureIdentity()) return;
     var currentStudent={...state.student};
