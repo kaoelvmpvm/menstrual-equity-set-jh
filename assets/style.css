@@ -33,3 +33,7 @@
  .submission-panel{flex-direction:column;align-items:stretch}
  .submission-panel .primary-button{width:100%}
 }
+
+/* Cloud connectivity diagnostic link */
+.cloud-test-link{display:inline-block;margin-top:8px;color:#235f66;font-size:12px;text-decoration:underline;text-underline-offset:3px;line-height:1.6}
+.cloud-test-link:hover{color:#163e47}
