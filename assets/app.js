@@ -147,13 +147,13 @@
     var className=refs.studentClass.value.trim();
     var seatNo=refs.studentSeat.value.trim();
     var name=refs.studentName.value.trim();
-    if (!/^[\\p{L}\\p{N}\\- ]{1,20}$/u.test(className)) {
+    if (!/^[\p{L}\p{N}\- ]{1,20}$/u.test(className)) {
       refs.identityError.textContent="請填寫班級（例如：815）。";refs.studentClass.focus();return false;
     }
-    if (!/^\\d{1,3}$/.test(seatNo) || Number(seatNo)<1 || Number(seatNo)>99) {
+    if (!/^\d{1,3}$/.test(seatNo) || Number(seatNo)<1 || Number(seatNo)>99) {
       refs.identityError.textContent="請填寫正確的座號。";refs.studentSeat.focus();return false;
     }
-    if (!/^[\\p{L}\\p{M} ·．]{1,30}$/u.test(name)) {
+    if (!/^[\p{L}\p{M} ·．]{1,30}$/u.test(name)) {
       refs.identityError.textContent="請填寫正確姓名。";refs.studentName.focus();return false;
     }
     if (!refs.privacyConsent.checked) {
