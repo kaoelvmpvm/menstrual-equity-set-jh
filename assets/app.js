@@ -384,9 +384,9 @@
 
   function setupCloudStatus() {
     refs.submitCloud.disabled=!CLOUD_READY;
-    refs.cloudTitle.textContent=CLOUD_READY?"可將學習紀錄送交教師":"Google 試算表尚未連線";
+    refs.cloudTitle.textContent=CLOUD_READY?"已設定 Google 試算表接收網址":"Google 試算表尚未連線";
     refs.cloudDesc.textContent=CLOUD_READY?
-      "送出後會保存班級、座號、姓名、每題作答歷程及進階分析。":
+      "完成後可按「送出學習紀錄」；第一次使用請先確認資料確實出現在教師試算表。":
       "老師完成 Google Apps Script 連線設定後即可送出；目前仍可下載紀錄備份。";
   }
   function captureAdvanced() {
