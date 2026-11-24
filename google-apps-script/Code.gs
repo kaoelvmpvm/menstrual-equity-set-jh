@@ -15,11 +15,35 @@ const SET_TAB_ADVANCED = '進階分析';
 const SET_MAX_PAYLOAD = 65000;
 const SET_MAX_ATTEMPTS_PER_QUESTION = 20;
 
+function targetSpreadsheet_() {
+  // 從目標試算表建立的「綁定型」Apps Script，會直接使用該試算表。
+  // 如果是由 script.google.com 單獨建立的專案，需於指令碼屬性設定
+  // SET_SPREADSHEET_ID，並確保部署帳號對該試算表有編輯權限。
+  const id = PropertiesService.getScriptProperties().getProperty('SET_SPREADSHEET_ID');
+  return id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet();
+}
+
+function checkDestination_() {
+  const ss = targetSpreadsheet_();
+  if (!ss) throw new Error('NO_SPREADSHEET');
+  for (const tab of [SET_TAB_SUMMARY, SET_TAB_ATTEMPTS, SET_TAB_ADVANCED]) {
+    if (!ss.getSheetByName(tab)) throw new Error('MISSING_TAB');
+  }
+  return ss;
+}
+
 function doGet() {
-  return HtmlService.createHtmlOutput(
-    '<!doctype html><html><head><meta charset="utf-8"></head>' +
-    '<body>經彩同行 SET 學習紀錄接收端已啟用；僅接受遊戲送出的 POST 紀錄。</body></html>'
-  ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  let ok = false;
+  let message = '';
+  try {
+    checkDestination_();
+    ok = true;
+    message = '接收端已找到目標試算表及三個必要分頁，可進行送件測試。';
+  } catch (err) {
+    console.error(err);
+    message = publicError_(err);
+  }
+  return receiptPage_(ok, message, '', true);
 }
 
 function doPost(e) {
@@ -34,12 +58,10 @@ function doPost(e) {
     const lock = LockService.getScriptLock();
     if (!lock.tryLock(15000)) throw Error('目前提交人數較多，請稍後重試');
     try {
-      const ss = SpreadsheetApp.getActiveSpreadsheet();
-      if (!ss) throw Error('請從目標試算表的「擴充功能 → Apps Script」建立本程式');
+      const ss = checkDestination_();
       const summary = ss.getSheetByName(SET_TAB_SUMMARY);
       const attempts = ss.getSheetByName(SET_TAB_ATTEMPTS);
       const advanced = ss.getSheetByName(SET_TAB_ADVANCED);
-      if (!summary || !attempts || !advanced) throw Error('找不到必要工作表：學習總覽、逐題作答軌跡、進階分析');
 
       const identity = data.student;
       const stamp = new Date();
@@ -112,7 +134,7 @@ function doPost(e) {
   } catch (err) {
     // 不回傳內部設定或試算表資訊給公開網站。
     console.error(err);
-    return respond_(session, false, '資料未完成儲存，請下載備份或重新提交。');
+    return respond_(session, false, publicError_(err));
   }
 }
 
@@ -161,15 +183,48 @@ function safe_(v) {
   // 防止提交內容被 Google 試算表誤認為公式。
   return /^[\s]*[=+\-@]/.test(s) ? "'" + s : s;
 }
-function respond_(session, success, message) {
-  const body = JSON.stringify({
-    type:'SET_SHEET_RESPONSE',sessionId:session,
-    success:!!success,message:message || ''
-  }).replace(/</g,'\\u003c');
-  const html = '<!doctype html><html><head><meta charset="utf-8"></head><body>' +
-    '<script>window.parent.postMessage(' + body + ', "*");</script>' +
-    (success ? '學習紀錄已儲存' : '提交未完成') +
-    '</body></html>';
+function publicError_(err) {
+  const msg = String(err && err.message || '');
+  if (msg.includes('NO_SPREADSHEET')) return '找不到綁定的試算表。請在 Google Apps Script 指令碼屬性設定 SET_SPREADSHEET_ID，或從目標試算表開啟 Apps Script。';
+  if (msg.includes('MISSING_TAB')) return '找不到「學習總覽」「逐題作答軌跡」「進階分析」其中一個分頁，請確認試算表。';
+  if (/permission|access|authorization|權限|授權|You do not have/i.test(msg)) return '部署帳號沒有目標試算表的存取或編輯權限，請確認共用權限與執行身分。';
+  if (msg.includes('提交資料無效或過大')) return '送出資料格式錯誤或超過大小限制，請下載學習紀錄備份。';
+  if (msg.includes('作答紀錄') || msg.includes('統計數據') || msg.includes('題目數量')) return '作答資料驗證失敗，請回遊戲檢查通關狀態後重新送出。';
+  if (msg.includes('目前提交人數較多')) return '同時提交的人數較多，請稍後再試。';
+  return 'Google 試算表未完成儲存。請由教師到 Apps Script 的「執行作業」查看錯誤紀錄。';
+}
+
+function receiptPage_(success, message, session, isHealth) {
+  const title = success ? (isHealth ? '連線診斷通過' : '學習紀錄已儲存') :
+    (isHealth ? '接收端尚未準備完成' : '學習紀錄送出失敗');
+  const safeText = String(message || '').replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const payload = JSON.stringify({
+    type:'SET_SHEET_RESPONSE',
+    sessionId:String(session || ''),
+    success:!!success,
+    message:String(message || '')
+  }).replace(/</g, '\\u003c');
+  const html = '<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<style>body{font-family:sans-serif;background:#f5f3ee;color:#25334a;margin:0;padding:30px;}' +
+    'main{max-width:560px;background:white;padding:32px;margin:6vh auto;border:1px solid #d9ddd9;border-radius:16px;}' +
+    'h1{font-size:25px}p{line-height:1.9}.status{color:' + (success?'#23754e':'#b34942') +
+    ';font-weight:bold}.note{font-size:13px;color:#697484}</style></head><body><main>' +
+    '<div class="status">' + (success ? '● 已通過' : '● 未通過') + '</div>' +
+    '<h1>' + title + '</h1><p>' + safeText + '</p>' +
+    '<p class="note">' + (isHealth ? '此頁只驗證連線，未寫入學生紀錄。' :
+      '若送出失敗，請先從原遊戲下載學習紀錄備份。') + '</p>' +
+    '</main><script>' +
+    'try{if(window.opener)window.opener.postMessage(' + payload +
+      ', "https://kaoelvmpvm.github.io");}catch(e){}' +
+    'try{if(window.parent&&window.parent!==window)window.parent.postMessage(' + payload +
+      ', "https://kaoelvmpvm.github.io");}catch(e){}' +
+    '</script></body></html>';
   return HtmlService.createHtmlOutput(html)
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function respond_(session, success, message) {
+  return receiptPage_(success, message || (success ? '資料已寫入教師的學習歷程試算表。' : ''), session, false);
 }
