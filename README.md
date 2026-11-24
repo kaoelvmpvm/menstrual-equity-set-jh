@@ -16,7 +16,7 @@
 已建立三分頁：「學習總覽」「逐題作答軌跡」「進階分析」。
 請參閱 [部署與測試指南](google-apps-script/DEPLOY.md) 並使用 [Google Apps Script 接收程式](google-apps-script/Code.gs)。
 教師必須在自己的試算表內部署 Apps Script，將正式 /exec 網址填入 config.js 才能正式送出。
-目前 config.js 未填接收網址，因此網站會顯示「Google 試算表尚未連線」，不會偽稱已成功傳送。
+目前已在 config.js 設定新北市教育網域的 Apps Script 正式 /exec 接收網址，但尚未完成真實寫入驗證。首次使用應以測試身分通關，按「送出學習紀錄」，再檢查三個試算表分頁是否正確收到資料。
 
 ## 資料與安全
 
