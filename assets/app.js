@@ -9,7 +9,7 @@
   var CONFIG = window.SET_CONFIG || {};
   var SHEET_URL = typeof CONFIG.collectionEndpoint==="string" ? CONFIG.collectionEndpoint.trim() : "";
   var CLOUD_READY = /^https:\/\/script\.google\.com\/(?:a\/macros\/[a-zA-Z0-9.-]+\/s|macros\/s)\/[a-zA-Z0-9_-]+\/exec$/.test(SHEET_URL);
-  var cloudTimeout = null;
+  var cloudReceiptWindow = null;
   var TOTAL = DATA.questions.length;
   var byId = function (id) { return document.getElementById(id); };
   var refs = {
@@ -17,7 +17,7 @@
     studentClass:byId("studentClass"),studentSeat:byId("studentSeat"),
     studentName:byId("studentName"),privacyConsent:byId("privacyConsent"),identityError:byId("identityError"),
     cloudConsent:byId("cloudConsent"),submitCloud:byId("submitCloudBtn"),
-    cloudTitle:byId("cloudStatusTitle"),cloudDesc:byId("cloudStatusDescription"),
+    cloudTitle:byId("cloudStatusTitle"),cloudDesc:byId("cloudStatusDescription"),cloudTestLink:byId("cloudTestLink"),
     submitFrame:byId("submissionFrame"),biasSelect:byId("biasSelect"),resourceSelect:byId("resourceSelect"),
     cast:byId("castGrid"),chapterPreview:byId("chapterPreview"),
     start:byId("startBtn"),resume:byId("resumeBtn"),reset:byId("resetBtn"),
@@ -386,8 +386,12 @@
     refs.submitCloud.disabled=!CLOUD_READY;
     refs.cloudTitle.textContent=CLOUD_READY?"已設定 Google 試算表接收網址":"Google 試算表尚未連線";
     refs.cloudDesc.textContent=CLOUD_READY?
-      "完成後可按「送出學習紀錄」；第一次使用請先確認資料確實出現在教師試算表。":
+      "送出後會另開 Google 回執頁，顯示實際儲存結果；第一次使用請先做一筆測試。":
       "老師完成 Google Apps Script 連線設定後即可送出；目前仍可下載紀錄備份。";
+    if (refs.cloudTestLink) {
+      refs.cloudTestLink.hidden=!CLOUD_READY;
+      if (CLOUD_READY) refs.cloudTestLink.href=SHEET_URL;
+    }
   }
   function captureAdvanced() {
     state.advanced={
@@ -417,40 +421,38 @@
       consent:true,startedAt:data.startedAt,finishedAt:data.finishedAt,
       stats:data.stats,advanced:data.advanced,questions:data.questions
     };
-    // 使用跨來源表單 POST 與隱藏 iframe，避免公開存放試算表憑證。
-    // 僅伺服器確認回傳 success:true 才顯示已儲存。
+    // 在使用者點擊時開啟可見的 Google 回執頁。
+    // 可避開隱藏 iframe 在學校帳號、瀏覽器第三方 Cookie 限制下的不透明失敗。
     var form=document.createElement("form");
-    form.method="POST";form.action=SHEET_URL;form.target="setSubmissionFrame";
+    form.method="POST";
+    form.action=SHEET_URL;
+    form.target="SET_Google_Receipt";
     form.style.display="none";
     var field=document.createElement("input");
     field.type="hidden";field.name="payload";field.value=JSON.stringify(payload);
     form.append(field);
     document.body.append(form);
-    refs.submitCloud.disabled=true;
-    refs.exportStatus.textContent="正在送出學習紀錄……";
-    if (cloudTimeout) clearTimeout(cloudTimeout);
-    cloudTimeout=setTimeout(function(){
-      refs.submitCloud.disabled=false;
-      refs.exportStatus.textContent="目前無法確認雲端是否儲存成功。請檢查教師試算表，或先下載備份。";
-      cloudTimeout=null;
-    },18000);
+    var receipt=null;
+    try {
+      if (typeof window.open==="function") receipt=window.open("", "SET_Google_Receipt");
+    } catch(err) {}
+    cloudReceiptWindow=receipt;
+    if (!receipt) form.target="_blank";
+    refs.exportStatus.textContent="已開啟 Google 回執頁，請確認顯示「學習紀錄已儲存」。若需登入，請使用有權存取的學校帳號。";
     try {form.submit();} catch(err) {
-      if (cloudTimeout) clearTimeout(cloudTimeout);
-      cloudTimeout=null;
-      refs.submitCloud.disabled=false;
-      refs.exportStatus.textContent="無法送出，請先下載學習紀錄備份。";
+      refs.exportStatus.textContent="無法啟動資料送出，請先下載學習紀錄備份。";
     }
     form.remove();
   }
   window.addEventListener("message",function(event){
-    if (!refs.submitFrame || event.source!==refs.submitFrame.contentWindow) return;
     var data=event.data;
+    if (!cloudReceiptWindow || event.source!==cloudReceiptWindow) return;
+    var googleOrigin=/^https:\/\/(?:script\.google\.com|(?:[a-zA-Z0-9-]+\.)?googleusercontent\.com)$/;
+    if (!googleOrigin.test(event.origin)) return;
     if (!data || data.type!=="SET_SHEET_RESPONSE" || data.sessionId!==state.runId) return;
-    if (cloudTimeout) clearTimeout(cloudTimeout);
-    cloudTimeout=null;
-    refs.submitCloud.disabled=false;
     refs.exportStatus.textContent=data.success?
-      "教師試算表已確認收到學習紀錄。":"雲端儲存未完成。請稍後再送一次，或下載備份。";
+      "Google 接收端確認：學習紀錄已寫入試算表。":
+      "Google 接收端回覆：送出失敗。"+(data.message||"請檢查回執頁。");
   });
   refs.submitCloud.addEventListener("click",submitToCloud);
 
