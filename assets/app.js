@@ -16,6 +16,7 @@
     home:byId("homeScreen"),game:byId("gameScreen"),result:byId("resultScreen"),
     studentClass:byId("studentClass"),studentSeat:byId("studentSeat"),
     studentName:byId("studentName"),privacyConsent:byId("privacyConsent"),identityError:byId("identityError"),
+    sessionNotice:byId("sessionNotice"),
     cloudConsent:byId("cloudConsent"),submitCloud:byId("submitCloudBtn"),
     cloudTitle:byId("cloudStatusTitle"),cloudDesc:byId("cloudStatusDescription"),cloudTestLink:byId("cloudTestLink"),
     submitFrame:byId("submissionFrame"),biasSelect:byId("biasSelect"),resourceSelect:byId("resourceSelect"),
@@ -89,6 +90,12 @@
     return DATA.questions.filter(isDone).length;
   }
   function allDone() {return completedCount()===TOTAL;}
+  function hasActivity() {
+    return DATA.questions.some(function(q) {
+      var record=state.answers[q.id];
+      return !!(record && Array.isArray(record.attempts) && record.attempts.length);
+    });
+  }
   function firstCorrectCount() {
     return DATA.questions.filter(function (q) {
       var r=state.answers[q.id];
@@ -130,9 +137,13 @@
       info.append(makeNode("h3","",c.name),makeNode("p","",c.description));
       card.append(image,info);refs.cast.append(card);
     });
-    var hasProgress=completedCount()>0;
+    var hasProgress=hasActivity();
     refs.resume.hidden=!hasProgress;
     refs.start.textContent=hasProgress?"開始新一輪調查 →":"開始十項調查 →";
+    refs.sessionNotice.hidden=!hasProgress;
+    if (hasProgress) {
+      refs.sessionNotice.textContent="此裝置存有上一輪學習紀錄。若不是你本人的紀錄，請先按右上角「清除本機資料」，不要以他人的紀錄續作。";
+    }
   }
   function home() {
     setupHome();
@@ -159,8 +170,14 @@
     if (!refs.privacyConsent.checked) {
       refs.identityError.textContent="請先閱讀並勾選學習資料使用說明。";refs.privacyConsent.focus();return false;
     }
-    state.student={className:className,seatNo:seatNo,name:name,consent:true};
-    persist();refs.identityError.textContent="";return true;
+    refs.identityError.textContent="";
+    return {className:className,seatNo:seatNo,name:name,consent:true};
+  }
+  function sameStudent(a,b) {
+    return !!a && !!b &&
+      a.className===b.className &&
+      Number(a.seatNo)===Number(b.seatNo) &&
+      a.name===b.name;
   }
   function findChapter(id) {
     return DATA.chapters.find(function(c){return c.id===id;})||DATA.chapters[0];
@@ -217,11 +234,18 @@
       }
       refs.options.append(btn);
     });
-    refs.feedback.hidden=!complete;
+    var lastAttempt=record && record.attempts && record.attempts.length ?
+      record.attempts[record.attempts.length-1] : null;
+    var unfinishedAttempt=!complete && lastAttempt && !lastAttempt.correct;
+    refs.feedback.hidden=!(complete || unfinishedAttempt);
     refs.feedback.classList.toggle("is-success",complete);
     if (complete) {
       refs.feedbackHeading.textContent="✓ 判斷完成｜"+q.principle;
       refs.feedbackText.textContent=q.explanation;
+    } else if (unfinishedAttempt) {
+      refs.feedbackHeading.textContent="再想一次｜這個推論需要修正";
+      refs.feedbackText.textContent=q.options[lastAttempt.choice].feedback;
+      refs.attemptsLabel.textContent="已嘗試 "+record.attempts.length+" 次";
     } else {
       refs.feedbackHeading.textContent="";
       refs.feedbackText.textContent="";
@@ -377,7 +401,7 @@
     refs.exportStatus.textContent=ok?"已複製學習紀錄摘要。":"無法自動複製，請改用下載文字檔。";
   }
   function restart() {
-    if (!window.confirm("確定重新開始嗎？此裝置的舊作答與進階分析將被清除。建議先匯出學習紀錄。")) return;
+    if (!window.confirm("確定清除此裝置的學習資料嗎？班級、座號、姓名、作答軌跡及進階分析將被清除；已送到 Google 試算表的紀錄不受影響。若尚未上傳，請先下載備份。")) return;
     state=newState();
     persist();home();
   }
@@ -457,17 +481,26 @@
   refs.submitCloud.addEventListener("click",submitToCloud);
 
   refs.start.addEventListener("click",function() {
-    if (!captureIdentity()) return;
-    var currentStudent={...state.student};
-    if (completedCount()>0) {
-      if (!window.confirm("將開始新一輪並清除目前進度。建議先完成或匯出；確定嗎？")) return;
+    var student=captureIdentity();
+    if (!student) return;
+    if (hasActivity()) {
+      if (!window.confirm("開始新一輪將清除這台裝置現有的作答紀錄。若需要保留，請先匯出；確定開始新一輪嗎？")) return;
       state=newState();
-      state.student=currentStudent;
     }
+    state.student=student;
     persist();goGame(0);
   });
   refs.resume.addEventListener("click",function(){
-    if (!captureIdentity()) return;
+    var student=captureIdentity();
+    if (!student) return;
+    if (!hasActivity()) {
+      refs.identityError.textContent="目前沒有可以續作的紀錄，請選擇開始調查。";
+      return;
+    }
+    if (!sameStudent(student,state.student)) {
+      refs.identityError.textContent="這份進度屬於另一組班級、座號或姓名。請確認資料，或清除本機資料後重新開始。";
+      return;
+    }
     if (allDone()) {result();return;}
     var firstUnfinished=DATA.questions.findIndex(function(q){return !isDone(q);});
     goGame(firstUnfinished<0?state.current:firstUnfinished);
