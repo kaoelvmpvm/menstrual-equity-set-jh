@@ -8,6 +8,7 @@
   <title>王子脫魯記 SET｜平權偵察隊</title>
   <link rel="stylesheet" href="./assets/style.css">
   <script defer src="./data/questions.js"></script>
+  <script defer src="./config.js"></script>
   <script defer src="./assets/app.js"></script>
 </head>
 <body>
@@ -29,8 +30,19 @@
               <h1 id="homeTitle">王子脫魯記 <em>SET</em><span class="title-next">平權偵察隊</span></h1>
               <p class="hero-intro">王子了解月經之後，王國裡的問題就全部解決了嗎？有些困難來自錯誤觀念，有些來自別人的偏見，也有些藏在資源取得的細節裡。</p>
               <p class="hero-intro second">加入偵察隊，跟著角色閱讀線索、作出判斷；答錯可以重新思考，沒有人會看到你的即時作答。</p>
+              <div class="identity-card" aria-label="學習資料">
+                <h2>登記學習資料</h2>
+                <p class="identity-description">請填寫班級、座號及姓名，方便老師辨識學習紀錄；不需要填寫任何個人經期經驗。</p>
+                <div class="identity-grid">
+                  <label>班級<input id="studentClass" type="text" maxlength="20" autocomplete="off" placeholder="例如：815" /></label>
+                  <label>座號<input id="studentSeat" type="text" maxlength="3" inputmode="numeric" autocomplete="off" placeholder="例如：08" /></label>
+                  <label>姓名<input id="studentName" type="text" maxlength="30" autocomplete="name" placeholder="請輸入姓名" /></label>
+                </div>
+                <label class="consent-line"><input id="privacyConsent" type="checkbox" /><span>我知道老師將收集上述資料、作答紀錄及我的文字分析，供本次學習評量使用。</span></label>
+                <p id="identityError" class="identity-error" role="alert" aria-live="polite"></p>
+              </div>
               <div class="hero-actions"><button class="primary-button" id="startBtn" type="button">開始十項調查 <span aria-hidden="true">→</span></button><button class="secondary-button" id="resumeBtn" type="button" hidden>繼續上次進度</button></div>
-              <p class="small-note">約20–30分鐘 · 10個任務 · 可自由重試 · 無需登入</p>
+              <p class="small-note">約20–30分鐘 · 10個任務 · 可自由重試 · 無需登入 Google 帳號</p>
             </div>
             <div class="hero-art" aria-label="王子的角色圖片預留位置"><div class="hero-frame"><div class="empty-portrait"><span class="frame-corners" aria-hidden="true">⌜　　⌝</span><span class="empty-portrait-mark" aria-hidden="true">◇</span><strong>角色圖片待補</strong><small>王子・主視覺佔位區</small><span class="frame-corners" aria-hidden="true">⌞　　⌟</span></div></div><span class="hero-decoration deco-one" aria-hidden="true">✦</span><span class="hero-decoration deco-two" aria-hidden="true">✧</span></div>
           </div>
@@ -65,22 +77,49 @@
             <div class="question-bottom"><button id="prevBtn" class="secondary-button" type="button">上一項任務</button><button id="nextBtn" class="primary-button" type="button" hidden>下一項任務 →</button></div>
           </div>
         </div>
-        <p class="privacy-line">你的作答紀錄只儲存在這台裝置的瀏覽器中；可在結算頁自行匯出，不會自動上傳給教師。</p>
+        <p class="privacy-line">答題軌跡先暫存在此裝置；完成後可依教師指示送交 Google 試算表或下載備份。</p>
       </section>
 
       <section id="resultScreen" class="screen result-screen" aria-labelledby="resultTitle" hidden>
-        <div class="result-hero"><span class="overline">MISSION COMPLETE</span><span class="result-emblem" aria-hidden="true">✦</span><h1 id="resultTitle">十項調查完成！</h1><p>你已完成 SET 基本認知檢核。你可以繼續進行 A 等進階分析，讓老師看到你的個人理解。</p><div class="result-grade"><strong>B</strong><span>基本通關達標</span></div></div>
+        <div class="result-hero"><span class="overline">MISSION COMPLETE</span><span class="result-emblem" aria-hidden="true">✦</span><h1 id="resultTitle">十項調查完成！</h1><p>基本任務完成！選一個你印象深刻的問題，再用自己的話說明原因與影響。</p><div class="result-grade"><strong>B</strong><span>基本通關達標</span></div></div>
         <div class="result-content">
           <section class="result-card" aria-labelledby="statTitle"><h2 id="statTitle">我的學習歷程</h2><div class="stat-grid"><div><strong id="statFirst">0</strong><small>首次答對</small></div><div><strong id="statRetry">0</strong><small>修正次數</small></div><div><strong id="statFinish">10 / 10</strong><small>完成任務</small></div></div><p class="muted">以上數據只描述這次互動作答的歷程，不直接等於真實生活中的行為表現。</p></section>
-          <section class="result-card" aria-labelledby="advancedTitle"><div class="badge-line"><span class="advanced-badge">A 等進階挑戰</span><small>由教師依回答內容判定</small></div><h2 id="advancedTitle">我的平權調查報告</h2><p class="card-copy">請各指出一個你在旅途中發現的問題，並說明它可能造成的影響。可以引用遊戲中的事件，也可以提出自己的例子。</p>
-            <label for="biasAnswer" class="field-label">① 性別偏見：你發現哪一種月經相關的刻板印象或偏見？可能造成什麼影響？</label>
-            <textarea id="biasAnswer" rows="4" maxlength="800" placeholder="例如：我發現……，這種想法可能使……"></textarea>
-            <label for="resourceAnswer" class="field-label">② 資源障礙：你發現哪一種生理用品取得障礙？可能造成什麼影響？</label>
-            <textarea id="resourceAnswer" rows="4" maxlength="800" placeholder="例如：即使……，仍可能因為……而……"></textarea>
-            <p class="review-note" id="reviewNote">填寫後請按「保存我的分析」。完成填寫不代表自動取得 A 等，仍須由教師判讀。</p>
+          <section class="result-card" aria-labelledby="advancedTitle"><div class="badge-line"><span class="advanced-badge">A 等進階挑戰</span><small>由教師依回答內容判定</small></div><h2 id="advancedTitle">我的平權調查報告</h2><p class="card-copy">先選出你認為值得關注的問題，再用自己的話說明原因與可能帶來的影響。</p>
+            <label for="biasSelect" class="field-label">① 我注意到的月經偏見</label>
+            <select id="biasSelect" class="reflection-select">
+              <option value="">請選擇一項</option>
+              <option value="經期不能洗頭">認為月經期間不能洗頭</option>
+              <option value="經期不能參加活動">認為月經來就不能參加活動</option>
+              <option value="拿月經開玩笑">拿別人的經期狀況開玩笑</option>
+              <option value="只有女生需要了解月經">認為只有女生需要了解月經</option>
+              <option value="其他偏見">其他偏見（請在下方說明）</option>
+            </select>
+            <label for="biasAnswer" class="field-label">為什麼你覺得這是個問題？它可能造成什麼影響？</label>
+            <p class="writing-example">示範：我選擇「拿月經開玩笑」，因為這可能讓有需要的人擔心被嘲笑，而不敢求助。</p>
+            <textarea id="biasAnswer" rows="4" maxlength="800" placeholder="我選擇這個問題，因為……，可能造成……"></textarea>
+            <label for="resourceSelect" class="field-label">② 我認為最不方便的用品取得問題</label>
+            <select id="resourceSelect" class="reflection-select">
+              <option value="">請選擇一項</option>
+              <option value="用品價格負擔">生理用品價格造成負擔</option>
+              <option value="領取時間受限">免費用品只能在特定時間領取</option>
+              <option value="領取地點太遠">領取地點不方便</option>
+              <option value="領取缺乏隱私">需要當面說明用途，缺乏隱私</option>
+              <option value="平均分配忽略需求">用品平均分配，忽略不同人的需求</option>
+              <option value="其他障礙">其他取得障礙（請在下方說明）</option>
+            </select>
+            <label for="resourceAnswer" class="field-label">為什麼你認為這個條件不方便？可能影響誰？</label>
+            <p class="writing-example">示範：我選擇「領取時間受限」，因為臨時有需要的人可能遇到管理室未開放，無法及時取得用品。</p>
+            <textarea id="resourceAnswer" rows="4" maxlength="800" placeholder="我認為……會造成困難，因為……，可能讓……"></textarea>
             <button class="primary-button" id="saveAdvancedBtn" type="button">保存我的分析</button>
+            <p class="copy-status" id="reviewNote" role="status" aria-live="polite"></p>
           </section>
-          <section class="result-card" aria-labelledby="exportTitle"><h2 id="exportTitle">保存學習成果</h2><p class="card-copy">可匯出匿名學習紀錄，包含每題首次作答、重試及最終結果。請依教師指示繳交，不必填寫姓名。</p><div class="export-buttons"><button id="exportTextBtn" class="primary-button" type="button">下載學習紀錄（文字）</button><button id="exportJsonBtn" class="secondary-button" type="button">下載完整資料（JSON）</button><button id="copySummaryBtn" class="secondary-button" type="button">複製學習摘要</button></div><p class="copy-status" id="exportStatus" role="status" aria-live="polite"></p></section>
+          <section class="result-card" aria-labelledby="exportTitle"><h2 id="exportTitle">保存學習成果</h2><p class="card-copy">學習資料與每次選擇的軌跡都會包含在紀錄中。完成後請按下方按鈕送交教師，也可下載備份。</p>
+              <div class="submission-panel">
+                <div><strong id="cloudStatusTitle">Google 試算表尚未連線</strong><p id="cloudStatusDescription">老師完成連線設定後，這裡就能送出學習紀錄。</p></div>
+                <button type="button" id="submitCloudBtn" class="primary-button" disabled>送出學習紀錄</button>
+              </div>
+              <label class="consent-line submission-consent"><input type="checkbox" id="cloudConsent" checked /><span>同意將班級、座號、姓名、作答軌跡與分析文字送到老師的試算表。</span></label><div class="export-buttons"><button id="exportTextBtn" class="primary-button" type="button">下載學習紀錄（文字）</button><button id="exportJsonBtn" class="secondary-button" type="button">下載完整資料（JSON）</button><button id="copySummaryBtn" class="secondary-button" type="button">複製學習摘要</button></div><p class="copy-status" id="exportStatus" role="status" aria-live="polite"></p></section>
+          <iframe id="submissionFrame" name="setSubmissionFrame" hidden title="學習紀錄送出"></iframe>
           <div class="result-bottom"><button id="reviewBtn" class="secondary-button" type="button">回顧我的答題</button><button id="restartBtn" class="text-button" type="button">重新開始整趟旅程</button></div>
         </div>
       </section>
