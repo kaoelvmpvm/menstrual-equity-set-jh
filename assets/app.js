@@ -28,7 +28,8 @@
     counter:byId("counterLabel"),chapter:byId("chapterLabel"),
     caseNo:byId("caseNo"),caseTopic:byId("caseTopic"),
     speakerName:byId("speakerName"),speakerRole:byId("speakerRole"),
-    portraitName:byId("portraitName"),scene:byId("sceneText"),
+    speakerAvatar:byId("speakerAvatar"),sceneImage:byId("sceneImage"),
+    sceneImageFallback:byId("sceneImageFallback"),scene:byId("sceneText"),
     gameTitle:byId("gameTitle"),questionType:byId("questionType"),
     attemptsLabel:byId("attemptsLabel"),progress:byId("progressTrack"),
     progressFill:byId("progressFill"),
@@ -132,7 +133,16 @@
     DATA.characters.forEach(function (c) {
       var card=makeNode("article","cast-card");
       var image=makeNode("div","cast-portrait");
-      image.append(makeNode("span","shape","◇"),makeNode("span","","角色圖片待補"));
+      var characterImage=makeNode("img","cast-image");
+      characterImage.src="./assets/characters/"+c.id+".png";
+      characterImage.alt=c.name+"角色立繪";
+      characterImage.loading="lazy";
+      characterImage.decoding="async";
+      characterImage.addEventListener("error",function(){
+        characterImage.hidden=true;
+        image.append(makeNode("span","image-fallback-label",c.name));
+      });
+      image.append(characterImage);
       var info=makeNode("div","cast-info");
       info.append(makeNode("h3","",c.name),makeNode("p","",c.description));
       card.append(image,info);refs.cast.append(card);
@@ -179,6 +189,17 @@
       Number(a.seatNo)===Number(b.seatNo) &&
       a.name===b.name;
   }
+  refs.sceneImage.addEventListener("error",function() {
+    refs.sceneImage.hidden=true;
+    refs.sceneImageFallback.hidden=false;
+  });
+  refs.sceneImage.addEventListener("load",function() {
+    refs.sceneImage.hidden=false;
+    refs.sceneImageFallback.hidden=true;
+  });
+  refs.speakerAvatar.addEventListener("error",function() {
+    refs.speakerAvatar.hidden=true;
+  });
   function findChapter(id) {
     return DATA.chapters.find(function(c){return c.id===id;})||DATA.chapters[0];
   }
@@ -209,7 +230,12 @@
     refs.caseTopic.textContent=q.tag;
     refs.speakerName.textContent=person.name;
     refs.speakerRole.textContent=person.role;
-    refs.portraitName.textContent=person.name;
+    refs.speakerAvatar.hidden=false;
+    refs.speakerAvatar.src="./assets/characters/"+person.id+".png";
+    refs.sceneImageFallback.hidden=true;
+    refs.sceneImage.hidden=false;
+    refs.sceneImage.alt="調查"+String(state.current+1).padStart(2,"0")+"： "+q.tag+" 情境插圖";
+    refs.sceneImage.src="./assets/scenes/"+q.id+".webp";
     refs.scene.textContent=q.scene;
     refs.gameTitle.textContent=q.title;
     refs.questionType.textContent=q.type;
