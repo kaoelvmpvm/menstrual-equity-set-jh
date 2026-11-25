@@ -41,3 +41,34 @@
 /* 共享裝置提示，減少把前一位學生的答題軌跡誤接到下一位學生名下。 */
 .session-notice{margin:14px 0 0;padding:10px 13px;border:1px solid rgba(232,194,140,.56);background:rgba(198,143,81,.14);border-radius:9px;font-size:12px;line-height:1.8;color:#f6debd}
 .shared-device-note{margin:9px 0 0;font-size:12px;line-height:1.85;color:#775f52}
+
+
+/* 角色立繪與 Q01-Q10 情境圖：保留原童話排版，將佔位框替換為實際圖片 */
+.hero-frame{overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hero-character{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
+.cast-portrait{height:205px;min-height:0;overflow:hidden;padding:10px 10px 0;background:linear-gradient(165deg,#f4eee4,#eae1d7)}
+.cast-image{width:100%;height:100%;display:block;object-fit:contain;object-position:center bottom}
+.image-fallback-label{font-size:13px;color:#796d67;line-height:1.7}
+.story-portrait{aspect-ratio:3/2;height:auto;max-width:none;width:100%;margin:17px 0 18px;border-radius:13px;padding:0;overflow:hidden;border:1px solid rgba(223,195,155,.58);background:#37435b}
+.scene-image{display:block;width:100%;height:100%;aspect-ratio:3/2;object-fit:cover}
+.scene-image-fallback{height:100%;min-height:210px;display:grid;place-items:center;text-align:center;color:#f4e6d4;padding:24px;font-size:13px;line-height:1.8}
+.speaker-avatar{width:46px;height:46px;flex:none;object-fit:contain;object-position:center center;border-radius:50%;background:#f4e9d8;border:1px solid #bca17f;padding:2px}
+.speaker-row{gap:11px}
+.speaker-row strong{white-space:nowrap}
+@media(max-width:930px){
+ .story-panel{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);column-gap:20px;row-gap:5px;align-items:start}
+ .story-panel-top{grid-column:1/-1}
+ .story-portrait{grid-column:1;grid-row:2/4;max-width:none;height:auto;margin:14px 0 0;aspect-ratio:3/2}
+ .speaker-row{grid-column:2;grid-row:2;align-self:end;margin:12px 0 0;padding-top:10px}
+ .scene-text{grid-column:2;grid-row:3;margin:5px 0 0;min-height:0}
+}
+@media(max-width:650px){
+ .hero-art{display:grid;margin:0 auto}
+ .hero-frame{width:min(175px,60vw);padding:9px}
+ .cast-portrait{height:148px;padding:9px 7px 0}
+ .story-panel{display:flex;flex-direction:column;gap:9px}
+ .story-portrait{width:100%;height:auto;max-width:none;aspect-ratio:3/2;margin:5px 0}
+ .speaker-row{align-self:stretch;margin:0;padding-top:10px}
+ .speaker-avatar{width:39px;height:39px}
+ .scene-text{margin:0;min-height:0}
+}
