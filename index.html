@@ -45,7 +45,7 @@
               <div class="hero-actions"><button class="primary-button" id="startBtn" type="button">開始十項調查 <span aria-hidden="true">→</span></button><button class="secondary-button" id="resumeBtn" type="button" hidden>繼續上次進度</button></div>
               <p class="small-note">約20–30分鐘 · 10個任務 · 可自由重試 · 無需登入 Google 帳號</p>
             </div>
-            <div class="hero-art" aria-label="王子的角色圖片預留位置"><div class="hero-frame"><div class="empty-portrait"><span class="frame-corners" aria-hidden="true">⌜　　⌝</span><span class="empty-portrait-mark" aria-hidden="true">◇</span><strong>角色圖片待補</strong><small>王子・主視覺佔位區</small><span class="frame-corners" aria-hidden="true">⌞　　⌟</span></div></div><span class="hero-decoration deco-one" aria-hidden="true">✦</span><span class="hero-decoration deco-two" aria-hidden="true">✧</span></div>
+            <div class="hero-art"><div class="hero-frame"><img class="hero-character" src="./assets/characters/prince.png" width="1122" height="1402" alt="王子拿著筆記本與放大鏡，準備展開平權調查" decoding="async" fetchpriority="high"></div><span class="hero-decoration deco-one" aria-hidden="true">✦</span><span class="hero-decoration deco-two" aria-hidden="true">✧</span></div>
           </div>
         </div>
         <div class="home-section">
@@ -53,7 +53,7 @@
           <div class="chapter-preview" id="chapterPreview"></div>
         </div>
         <div class="home-section">
-          <div class="section-heading"><div><p class="overline">THE CAST</p><h2>旅途中的四位角色</h2></div><p>角色立繪尚未製作；此版本先保留可替換的圖片框。</p></div>
+          <div class="section-heading"><div><p class="overline">THE CAST</p><h2>旅途中的四位角色</h2></div><p>四位童話夥伴將陪你觀察月經迷思、性別偏見與資源取得障礙。</p></div>
           <div class="cast-grid" id="castGrid"></div>
         </div>
         <div class="teacher-note"><strong>給學習者</strong><p>本活動使用虛構情境，不需要分享自己的經期經驗。完成十題即達成基本通關；若希望挑戰進階表現，可在結束後寫下你發現的偏見與資源障礙，以及它們的影響。</p></div>
@@ -65,8 +65,8 @@
         <div class="game-grid">
           <aside class="story-panel" aria-label="故事場景">
             <div class="story-panel-top"><span id="caseNo">調查 01</span><span id="caseTopic">概念調查</span></div>
-            <div class="story-portrait" id="storyPortrait"><div class="portrait-placeholder"><span class="placeholder-symbol">◇</span><span>角色圖片待補</span><small id="portraitName">王子</small></div></div>
-            <div class="speaker-row"><span class="speaker-dot" aria-hidden="true"></span><strong id="speakerName">王子</strong><span id="speakerRole">探究引導者</span></div>
+            <div class="story-portrait" id="storyPortrait"><img id="sceneImage" class="scene-image" src="./assets/scenes/Q01.webp" alt="調查情境插圖：睡美人的床單" width="1536" height="1024" decoding="async"><div id="sceneImageFallback" class="scene-image-fallback" hidden>情境圖片暫時無法載入，請依下方故事文字繼續作答。</div></div>
+            <div class="speaker-row"><img id="speakerAvatar" class="speaker-avatar" src="./assets/characters/prince.png" alt="" width="44" height="44" decoding="async"><strong id="speakerName">王子</strong><span id="speakerRole">探究引導者</span></div>
             <p class="scene-text" id="sceneText"></p>
           </aside>
           <div class="question-panel">
@@ -125,7 +125,7 @@
         </div>
       </section>
     </main>
-    <footer class="site-footer"><span>《王子脫魯記 SET：平權偵察隊》 · 國中月經平權數位輔助學習</span><span>教學焦點：性 J3・性 J10　｜　人物圖片待補</span></footer>
+    <footer class="site-footer"><span>《王子脫魯記 SET：平權偵察隊》 · 國中月經平權數位輔助學習</span><span>教學焦點：性 J3・性 J10　｜　四名童話角色 × 十項情境調查</span></footer>
   </div>
 </body>
 </html>
