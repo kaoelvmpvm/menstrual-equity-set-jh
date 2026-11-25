@@ -16,7 +16,7 @@
 已建立三分頁：「學習總覽」「逐題作答軌跡」「進階分析」。
 請參閱 [部署與測試指南](google-apps-script/DEPLOY.md) 並使用 [Google Apps Script 接收程式](google-apps-script/Code.gs)。
 接收端已填入 config.js。若尚未成功寫入，請將 google-apps-script/Code.gs 的最新版複製至 Apps Script、指定 SET_SPREADSHEET_ID、部署新版本。網站現在以新分頁顯示 Google 回執，並提供「先檢查 Google 接收端是否正常」的診斷連結。
-目前已在 config.js 設定新北市教育網域的 Apps Script 正式 /exec 接收網址，但尚未完成真實寫入驗證。首次使用應以測試身分通關，按「送出學習紀錄」，再檢查三個試算表分頁是否正確收到資料。
+config.js 已設定新北市教育網域 Apps Script 的正式 /exec 網址，之前已成功完成單人作答與試算表寫入測試。多人同時提交仍需另行負載測試。
 
 ## 穩定性修正（2026-11-24）
 
@@ -34,7 +34,7 @@
 - 學生按「送出學習紀錄」才會一次上傳；未送出前紀錄保留在目前裝置的 localStorage 中。
 - 使用公開 Apps Script endpoint 無法直接驗證班級、座號或學生真實身分，需由教師檢核。
 - 同一學習代碼重複送出時，接收程式會更新總覽與進階分析，避免重複新增作答軌跡。
-- 人物立繪均先顯示空白佔位框。
+- 首頁、角色介紹與題目均已接入圖片；角色採透明 PNG，題目採 WebP 情境圖。
 
 ## 檔案
 
@@ -45,8 +45,18 @@
 - data/questions.js：十題劇本、選項及回饋。
 - google-apps-script/Code.gs：寫入教師試算表的接收程式。
 - google-apps-script/DEPLOY.md：教師設定與檢驗步驟。
-- tests/validate.cjs：題庫與頁面元件結構檢查。
+- tests/validate.cjs：題庫、頁面元件與 14 張圖片 PNG/WebP 格式檢查。
+- tests/smoke.cjs：答題、續作及資料清除流程的回歸測試。
 
 ## 發布
 
 GitHub Settings → Pages → Deploy from a branch → main → /(root) → Save。首次公開前請確認校方學生資料蒐集及告知規範。
+
+## 圖像素材（2026-11-25）
+
+- `assets/characters/prince.png`：首頁主視覺、角色介紹及王子出場任務頭像。
+- `assets/characters/cinderella.png`、`rapunzel.png`、`matchgirl.png`：角色介紹與各自的任務頭像。
+- `assets/scenes/Q01.webp`～`Q10.webp`：依據題號自動顯示每題對應情境圖。
+- 角色 PNG 為 1122×1402、含透明度；情境 WebP 為 1536×1024（3:2）。
+- 若圖片載入失敗，遊戲顯示替代文字，仍可閱讀題目並繼續作答。
+- 本次只修改 `index.html`、`assets/app.js`、`assets/style.css` 及教材檢查，不更動作答資料格式與 Google Apps Script 接收程式；不需要重新部署 Google Apps Script。
