@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<base target="_top">
+<title>SET｜平權觀點展示牆</title>
+<style>
+:root{--ink:#27344b;--sub:#667182;--cream:#f7f4ed;--paper:#fffdf9;--violet:#6b547c;--peach:#f6e7d7;--line:#e3dacf;--green:#26785b;--red:#b34758;--shadow:0 14px 40px rgba(44,38,59,.09)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;color:var(--ink);background:var(--cream);font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;font-size:15px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #a9c3e1;outline-offset:2px}
+header{background:#26354b;color:#fff;padding:16px clamp(18px,4vw,52px);display:flex;justify-content:space-between;gap:18px;align-items:center}
+.brand-small{color:#d9b98e;font-size:11px;letter-spacing:.16em}
+.brand-title{font-weight:800;font-size:24px;margin:4px 0}
+.brand-meta{font-size:12px;color:#d3d9de}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.header-actions button{background:transparent;color:#edf3f6;border:1px solid #8695a5;padding:10px 15px;border-radius:11px;font-size:13px}
+.header-actions button.active{background:#efd9b9;border-color:#efd9b9;color:#27344b;font-weight:800}
+.header-actions button:hover{border-color:white}
+.main{max-width:1380px;margin:0 auto;padding:28px clamp(18px,4vw,48px) 65px}
+.banner{border:1px solid #e6c4a4;background:#fff4e8;color:#79482f;padding:13px 18px;border-radius:12px;margin-bottom:18px;line-height:1.7}
+.banner.error{background:#fff0ed;border-color:#d69ca0;color:#983845}
+.toolhead{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:19px;flex-wrap:wrap}
+.toolhead h1{margin:0 0 7px;font-size:25px}
+.toolhead p{margin:0;color:var(--sub);line-height:1.7;font-size:13px}
+.filters{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:20px 0 25px}
+.filters label{font-size:12px;font-weight:700;color:#535a6b;display:flex;align-items:center;gap:7px}
+select,input{border:1px solid #d6cbd1;background:#fff;color:var(--ink);border-radius:10px;padding:10px 12px;min-width:120px}
+.search{min-width:230px}
+.counts{display:flex;flex-wrap:wrap;gap:9px}
+.stat{padding:9px 12px;background:#efeae6;color:#45465a;border-radius:10px;font-size:12px;font-weight:700}
+.review-list{display:grid;gap:18px}
+.review-card{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.review-head{background:#f1e9e4;padding:15px 19px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.review-person{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+.review-person strong{font-size:17px}
+.review-person span{color:var(--sub);font-size:12px}
+.review-parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px;padding:18px}
+.review-part{border:1px solid #e0d9d2;border-radius:13px;background:#fff;padding:18px;min-width:0}
+.part-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 14px}
+.part-name{font-size:14px;font-weight:800}
+.pill{font-size:11px;padding:5px 9px;border-radius:999px;background:#f3e2de;color:#98535c;font-weight:800}
+.pill.approved{background:#dcf0e7;color:#246e52}
+.choice{color:var(--violet);font-weight:800;font-size:15px;margin-bottom:10px}
+.original{font-size:14px;line-height:1.9;white-space:pre-wrap;margin:0;background:#f7f5f1;border-radius:9px;padding:12px 13px;min-height:68px}
+.review-part .field-label{display:block;margin:16px 0 6px;font-weight:700;color:#505468;font-size:12px}
+.review-part textarea{border:1px solid #d2cbd2;border-radius:9px;width:100%;min-height:100px;resize:vertical;padding:12px;line-height:1.7;font-size:14px;color:var(--ink);background:#fffdfb}
+.review-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.action-primary,.action-secondary,.load-more{border-radius:10px;padding:10px 15px;font-weight:800;font-size:13px;border:1px solid transparent}
+.action-primary{background:var(--violet);color:white}
+.action-primary:hover{background:#58436a}
+.action-secondary{background:white;color:#98505d;border-color:#d8c4c9}
+.action-secondary:hover{background:#f9eeee}
+.note{font-size:12px;line-height:1.7;color:var(--sub);margin:9px 0 0}
+.empty{padding:50px 22px;text-align:center;border:1px dashed #d6c6bc;border-radius:16px;color:var(--sub);line-height:1.8}
+.load-wrap{text-align:center;margin-top:22px}
+.load-more{background:white;border-color:#d9cecc;color:var(--ink)}
+.project-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;background:#ece5db;border:1px solid #dacfc1;padding:12px 16px;border-radius:14px;margin-bottom:20px}
+.project-controls label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700}
+.project-controls .spacer{flex:1}
+.project-controls button{border-radius:10px;border:1px solid #b5a8a8;padding:9px 12px;color:var(--ink);background:white;font-size:13px;font-weight:700}
+.project-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.quote-card{background:#fff;min-height:230px;border:2px solid #e2d7d0;border-radius:18px;padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:11px;cursor:pointer;position:relative}
+.quote-card:hover{border-color:#ae99b9}
+.quote-card.selected{border-color:#745a87;box-shadow:0 0 0 3px rgba(109,83,126,.16)}
+.quote-card[data-topic="bias"]{background:#fff9f7}
+.quote-card[data-topic="resource"]{background:#f8fbfc}
+.quote-head{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.quote-kind{font-size:12px;font-weight:800;letter-spacing:.05em;color:#86618c}
+.quote-card[data-topic="resource"] .quote-kind{color:#41778a}
+.quote-index{font-size:12px;color:#85808a}
+.quote-title{font-size:20px;font-weight:900;color:#29354d;line-height:1.4}
+.quote-text{font-size:17px;line-height:1.94;white-space:pre-wrap;margin:0;overflow-wrap:anywhere}
+.quote-foot{font-size:12px;color:var(--sub);margin-top:auto}
+.compare-toolbar{background:#2a364c;border-radius:14px;color:white;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:13px 17px;margin-bottom:15px;flex-wrap:wrap}
+.compare-toolbar button{background:#e8cfa8;color:#26354b;border:0;border-radius:9px;padding:10px 16px;font-weight:800}
+#compareDialog{position:fixed;inset:0;background:rgba(26,32,49,.90);z-index:50;padding:clamp(14px,3vw,36px);overflow:auto;color:white}
+.compare-top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:26px}
+.compare-top h2{font-size:27px;margin:0}
+.compare-top button{border:1px solid #c6c2c1;border-radius:10px;background:transparent;color:white;padding:11px 15px}
+.compare-columns{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.compare-columns .quote-card{color:#28354c;min-height:320px;cursor:default}
+.compare-question{margin:25px 0 0;text-align:center;color:#fff4e7;font-size:20px;font-weight:800;line-height:1.8}
+footer{text-align:center;padding:20px;font-size:12px;color:var(--sub)}
+.projecting{background:#f5f1e9}
+.projecting header{background:#26354b}
+.projecting .main{max-width:1650px}
+.projecting .toolhead h1{font-size:30px}
+.projecting .quote-card{min-height:260px}
+.projecting .quote-title{font-size:23px}
+.projecting .quote-text{font-size:20px}
+@media(max-width:840px){.review-parts,.project-layout,.compare-columns{grid-template-columns:1fr}.projecting .quote-text{font-size:18px}.search{min-width:170px}}
+@media(max-width:600px){header{align-items:start;flex-direction:column}.brand-title{font-size:20px}.main{padding:20px 15px 55px}.review-head{align-items:start}.review-parts{padding:12px;gap:12px}.review-part{padding:14px}.quote-card{padding:17px;min-height:185px}.quote-text{font-size:16px}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="brand-small">SET · TEACHER STUDIO</div>
+    <div class="brand-title">平權觀點展示牆</div>
+    <div class="brand-meta">《王子脫魯記 SET》｜教師專用 · 匿名投影 · 審核後展示</div>
+  </div>
+  <div class="header-actions">
+    <button id="adminTab" class="active" type="button">教師審核</button>
+    <button id="projectTab" type="button">投影展示</button>
+    <button id="refreshBtn" type="button">重新讀取</button>
+  </div>
+</header>
+<main class="main">
+  <div id="banner" class="banner" role="status">正在連接教師試算表。未經審核的學生文字不會出現在投影畫面。</div>
+  <section id="adminPage">
+    <div class="toolhead">
+      <div><h1>學生觀點審核</h1><p>可查看原始回覆、修改投影文字並逐則核准。姓名與座號僅出現在此教師畫面。</p></div>
+      <div class="counts" id="adminCounts"></div>
+    </div>
+    <div class="filters">
+      <label>班級 <select id="adminClass"><option value="">全部班級</option></select></label>
+      <label>類型 <select id="adminTopic"><option value="all">全部主題</option><option value="bias">月經偏見</option><option value="resource">用品取得障礙</option></select></label>
+      <label>狀態 <select id="adminStatus"><option value="all">全部</option><option value="pending">至少一項待審</option><option value="approved">至少一項已核准</option></select></label>
+      <label>搜尋 <input id="search" class="search" type="search" placeholder="姓名、座號、答案關鍵字"></label>
+    </div>
+    <div id="reviewList" class="review-list"></div>
+    <div class="load-wrap"><button id="loadMore" class="load-more" type="button" hidden>顯示更多學生</button></div>
+    <p class="note">請先移除任何姓名、私人經驗、可辨識資訊或不適合公開的內容，再按「核准展示」。修改後的投影文字會獨立保存，不會更動學生原始作答。</p>
+  </section>
+
+  <section id="projectPage" hidden>
+    <div class="toolhead"><div><h1>平權觀點展示</h1><p>僅呈現教師明確核准的匿名回答，供全班討論、比較觀點使用。每30秒自動更新。</p></div>
+      <div class="counts" id="projectCounts"></div>
+    </div>
+    <div class="project-controls">
+      <label>班級 <select id="projectClass"><option value="">全部班級</option></select></label>
+      <label>展示主題 <select id="projectTopic"><option value="all">全部</option><option value="bias">月經偏見</option><option value="resource">資源障礙</option></select></label>
+      <span class="spacer"></span>
+      <button id="fullscreenBtn" type="button">全螢幕</button>
+      <button id="clearSelection" type="button">清除比較選取</button>
+    </div>
+    <div class="compare-toolbar">
+      <span id="compareStatus">可點選兩張卡片，進行並排觀點比較</span>
+      <button id="compareBtn" type="button" disabled>比較兩則觀點</button>
+    </div>
+    <div id="projectList" class="project-layout"></div>
+  </section>
+</main>
+<footer>SET｜教師展示平台 · 投影時不顯示班級、姓名、座號或學習代碼 · 實際公開錄影仍須符合學校個資及影像授權規範</footer>
+<div id="compareDialog" role="dialog" aria-modal="true" aria-label="比較兩則觀點" hidden>
+  <div class="compare-top"><h2>兩種觀點，兩種思考</h2><button id="compareClose" type="button">關閉比較 ×</button></div>
+  <div id="compareColumns" class="compare-columns"></div>
+  <div class="compare-question">這兩位學生注意到的問題有什麼不同？如果同時考慮，你會怎麼想？</div>
+</div>
+<script>
+(function(){
+"use strict";
+var state={records:[],teacher:"",mode:"admin",loaded:false,busy:false,visibleCount:20,selected:[],readAt:""};
+var $=function(id){return document.getElementById(id)};
+var make=function(tag,cls,text){var el=document.createElement(tag);if(cls)el.className=cls;if(text!=null)el.textContent=text;return el};
+function banner(message,isError){$("banner").textContent=message;$("banner").classList.toggle("error",!!isError);$("banner").hidden=!message}
+function callApi(method,arg,ok){
+  if(!window.google||!google.script||!google.script.run){banner("此頁必須透過已部署的教師專用 Google Apps Script 網址開啟，無法直接由 GitHub 或本機 HTML 讀取學生資料。",true);return}
+  var call=google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){state.busy=false;banner("操作失敗："+(e&&e.message?e.message:"請檢查授權或試算表"),true)});
+  if(method==="load")call.wallGetData();
+  else call.wallSaveApproval(arg);
+}
+function refresh(silent){
+  if(state.busy)return;
+  state.busy=true;
+  if(!silent)banner("正在讀取教師試算表……",false);
+  callApi("load",null,function(result){
+    state.busy=false;state.loaded=true;state.records=result.records||[];state.teacher=result.teacher||"";state.readAt=result.readAt||"";
+    var approvedKeys=new Set(projectItems().map(function(x){return x.key}));
+    state.selected=state.selected.filter(function(id){return approvedKeys.has(id)});
+    renderAll();
+    banner("",false);
+  });
+}
+function escapeLabel(s){return String(s||"").trim()}
+function uniqueClasses(){
+  return Array.from(new Set(state.records.map(function(x){return x.className}).filter(Boolean))).sort(function(a,b){return a.localeCompare(b,"zh-Hant",{numeric:true})})
+}
+function fillOptions(selectId){
+  var select=$(selectId),value=select.value;
+  while(select.options.length>1)select.remove(1);
+  uniqueClasses().forEach(function(cl){var op=document.createElement("option");op.value=cl;op.textContent=cl;select.append(op)});
+  select.value=Array.from(select.options).some(function(x){return x.value===value})?value:"";
+}
+function counts(){
+  var recordCount=state.records.length,items=projectItems();
+  $("adminCounts").replaceChildren();
+  var options=["待審核："+state.records.filter(function(r){return (r.biasText&&!r.biasApproved)||(r.resourceText&&!r.resourceApproved)}).length+"人",
+    "已核准："+items.length+"則","作答紀錄："+recordCount+"人"];
+  options.forEach(function(t){$("adminCounts").append(make("span","stat",t))});
+  $("projectCounts").replaceChildren(make("span","stat","已核准 "+items.length+" 則"),make("span","stat","更新 "+state.readAt));
+}
+function adminFilter(r){
+  var cl=$("adminClass").value,topic=$("adminTopic").value,status=$("adminStatus").value,keyword=$("search").value.trim().toLowerCase();
+  if(cl&&r.className!==cl)return false;
+  var sides=topic==="all"?["bias","resource"]:[topic];
+  var approved=sides.some(function(side){return r[side+"Approved"]});
+  var pending=sides.some(function(side){return !!r[side+"Text"]&&!r[side+"Approved"]});
+  if(status==="approved"&&!approved)return false;
+  if(status==="pending"&&!pending)return false;
+  if(keyword){
+    var haystack=[r.name,r.seat,r.className,r.biasText,r.biasOption,r.resourceText,r.resourceOption].join(" ").toLowerCase();
+    if(haystack.indexOf(keyword)<0)return false;
+  }
+  return true;
+}
+function part(r,topic){
+  var isBias=topic==="bias",original=r[topic+"Text"],option=r[topic+"Option"],approved=r[topic+"Approved"];
+  var outer=make("section","review-part");
+  var top=make("div","part-head"),status=make("span","pill"+(approved?" approved":""),approved?"已核准":"待審核");
+  top.append(make("div","part-name",isBias?"① 月經偏見":"② 用品取得障礙"),status);
+  outer.append(top,make("div","choice",option||"未選擇"),make("p","original",original||"尚未填寫"));
+  if(!option||!original){outer.append(make("p","note","學生尚未完成這一項進階分析。"));return outer}
+  var lbl=make("label","field-label","投影文字（可刪除私人資訊並精簡）"),edit=make("textarea");
+  edit.maxLength=800;edit.value=r[topic+"Public"]||original;
+  edit.setAttribute("aria-label",(isBias?"月經偏見":"資源障礙")+"投影文字");
+  var actions=make("div","review-actions"),save=make("button","action-primary",approved?"儲存核准文字":"核准展示");
+  save.type="button";
+  save.addEventListener("click",function(){saveItem(r,topic,true,edit.value,save)});
+  actions.append(save);
+  if(approved){
+    var revoke=make("button","action-secondary","撤銷展示");
+    revoke.type="button";revoke.addEventListener("click",function(){saveItem(r,topic,false,edit.value,revoke)});
+    actions.append(revoke);
+  }
+  outer.append(lbl,edit,actions);
+  return outer;
+}
+function saveItem(r,topic,approved,publicText,button){
+  if(state.busy)return;
+  if(approved&&!publicText.trim()){banner("請先填入適合匿名投影的文字。",true);return}
+  if(approved&&!window.confirm("確定已檢查這段文字，不含姓名、可識別個資或不宜公開的敏感資訊，並核准投影展示？"))return;
+  state.busy=true;button.disabled=true;
+  callApi("save",{id:r.id,topic:topic,approved:approved,publicText:publicText},function(){
+    state.busy=false;state.visibleCount=Math.max(state.visibleCount,20);
+    refresh(false);
+  });
+}
+function renderAdmin(){
+  var list=$("reviewList");list.replaceChildren();
+  var filtered=state.records.filter(adminFilter);
+  var shown=filtered.slice(0,state.visibleCount);
+  shown.forEach(function(r){
+    var card=make("article","review-card");
+    var head=make("div","review-head"),person=make("div","review-person");
+    person.append(make("strong","",r.name||"未填姓名"),make("span","",(r.className||"未分類")+" 班 · "+(r.seat||"—")+" 號"),make("span","",r.receivedAt||""));
+    head.append(person);card.append(head);
+    var content=make("div","review-parts"),topic=$("adminTopic").value;
+    if(topic==="all"||topic==="bias")content.append(part(r,"bias"));
+    if(topic==="all"||topic==="resource")content.append(part(r,"resource"));
+    card.append(content);list.append(card);
+  });
+  if(!filtered.length)list.append(make("div","empty",state.loaded?"目前沒有符合篩選條件的學生回答。":"尚未載入資料。"));
+  $("loadMore").hidden=filtered.length<=shown.length;
+  $("loadMore").textContent="顯示更多學生（還有 "+(filtered.length-shown.length)+" 筆）";
+}
+function projectItems(){
+  var output=[];
+  state.records.forEach(function(r){
+    ["bias","resource"].forEach(function(topic){
+      if(!r[topic+"Approved"]||!r[topic+"Public"]||!r[topic+"Title"])return;
+      output.push({key:r.id+"|"+topic,topic:topic,className:r.className,
+        title:r[topic+"Title"],text:r[topic+"Public"]});
+    });
+  });
+  return output;
+}
+function projectFilter(item){
+  var cl=$("projectClass").value,topic=$("projectTopic").value;
+  return (!cl||item.className===cl)&&(topic==="all"||item.topic===topic);
+}
+function makeQuote(item,index,interactive){
+  var card=make("article","quote-card"+(state.selected.indexOf(item.key)>=0?" selected":""));
+  card.dataset.topic=item.topic;
+  card.append(make("div","quote-head"));
+  card.firstChild.append(make("span","quote-kind",item.topic==="bias"?"月經偏見":"資源障礙"),make("span","quote-index","觀點 "+String(index+1).padStart(2,"0")));
+  card.append(make("div","quote-title",item.title),make("p","quote-text",item.text));
+  card.append(make("div","quote-foot","匿名分享 · 已經教師審核"));
+  if(interactive){
+    card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label","選取匿名觀點 "+String(index+1));
+    var toggle=function(){
+      var pos=state.selected.indexOf(item.key);
+      if(pos>=0)state.selected.splice(pos,1);
+      else if(state.selected.length<2)state.selected.push(item.key);
+      else state.selected=[state.selected[1],item.key];
+      renderProject();
+    };
+    card.addEventListener("click",toggle);
+    card.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle()}});
+  }
+  return card;
+}
+function renderProject(){
+  var list=$("projectList");list.replaceChildren();
+  var filtered=projectItems().filter(projectFilter);
+  var allowed=new Set(filtered.map(function(x){return x.key}));
+  state.selected=state.selected.filter(function(key){return allowed.has(key)});
+  filtered.forEach(function(item,i){list.append(makeQuote(item,i,true))});
+  if(!filtered.length)list.append(make("div","empty","目前沒有符合條件且經教師核准的匿名回答。請先到「教師審核」完成核准。"));
+  $("compareBtn").disabled=state.selected.length!==2;
+  $("compareStatus").textContent=state.selected.length===0?"點選兩張卡片，可比較學生的不同觀點":("已選擇 "+state.selected.length+"/2 則觀點");
+}
+function compare(){
+  if(state.selected.length!==2)return;
+  var all=projectItems().filter(projectFilter),chosen=state.selected.map(function(key){return all.find(function(item){return item.key===key})}).filter(Boolean);
+  if(chosen.length!==2)return;
+  $("compareColumns").replaceChildren();
+  chosen.forEach(function(item,i){$("compareColumns").append(makeQuote(item,i,false))});
+  $("compareDialog").hidden=false;
+  $("compareClose").focus();
+}
+function mode(next){
+  state.mode=next;
+  var p=next==="project";
+  document.body.classList.toggle("projecting",p);
+  $("adminPage").hidden=p;$("projectPage").hidden=!p;
+  $("adminTab").classList.toggle("active",!p);$("projectTab").classList.toggle("active",p);
+  $("compareDialog").hidden=true;
+  renderAll();
+  window.scrollTo(0,0);
+}
+function renderAll(){
+  fillOptions("adminClass");fillOptions("projectClass");counts();
+  renderAdmin();renderProject();
+}
+$("adminTab").addEventListener("click",function(){mode("admin")});
+$("projectTab").addEventListener("click",function(){mode("project")});
+$("refreshBtn").addEventListener("click",function(){refresh(false)});
+["adminClass","adminTopic","adminStatus"].forEach(function(id){$(id).addEventListener("change",function(){state.visibleCount=20;renderAdmin()})});
+$("search").addEventListener("input",function(){state.visibleCount=20;renderAdmin()});
+["projectClass","projectTopic"].forEach(function(id){$(id).addEventListener("change",renderProject)});
+$("loadMore").addEventListener("click",function(){state.visibleCount+=20;renderAdmin()});
+$("clearSelection").addEventListener("click",function(){state.selected=[];renderProject()});
+$("compareBtn").addEventListener("click",compare);
+$("compareClose").addEventListener("click",function(){$("compareDialog").hidden=true});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")$("compareDialog").hidden=true});
+$("fullscreenBtn").addEventListener("click",function(){
+  if(document.fullscreenElement&&document.exitFullscreen){document.exitFullscreen();return}
+  if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(function(){banner("此瀏覽器無法透過按鈕全螢幕，請改按 F11。",true)});
+  else banner("請使用瀏覽器 F11 進入全螢幕。",false);
+});
+setInterval(function(){if(state.mode==="project"&&!state.busy)refresh(true)},30000);
+refresh(false);
+})();
+</script>
+</body>
+</html>
