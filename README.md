@@ -47,6 +47,8 @@ config.js 已設定新北市教育網域 Apps Script 的正式 /exec 網址，�
 - **教師平台必須使用獨立、非公開的 Apps Script 專案部署，不能與現有對學生公開的 Code.gs 接收端合併。**
 - 程式碼：teacher-wall/Code.gs、teacher-wall/Teacher.html。
 - **[教師展示牆部署指南](teacher-wall/SETUP.md)**：包含建立新的獨立 Apps Script 專案、設定教師白名單、只有我存取與第一次核准測試。
+- **[教師展示牆示範預覽](https://kaoelvmpvm.github.io/menstrual-equity-set-jh/teacher-wall/demo.html)**：使用四筆虛構學生資料，現在可測試教師審核、匿名展示與兩則比較；不會讀取真實學生資料。
+- 回歸測試：node teacher-wall/tests/smoke.cjs。
 - GitHub 現已提供完整程式和資料分頁，但**Google 教師端部署需由帳號持有人登入並授權，完成前還沒有正式可用的展示網址**。不需重新部署學生原本的 Apps Script。
 
 ## 檔案
