@@ -15,7 +15,7 @@ const WALL_REVIEW_TAB = '展示審核';
 const WALL_HEADERS = [
   '學習代碼','偏見展示核准','資源展示核准',
   '偏見公開文字','資源公開文字',
-  '偏見展示標籤','資源展示標籤','審核更新時間','審核教師'
+  '偏見展示標籤','資源展示標籤','審核更新時間','審核教師','偏見來源指紋','資源來源指紋'
 ];
 const WALL_MAX_ROWS = 1500;
 const WALL_MAX_TEXT = 800;
@@ -55,6 +55,12 @@ function wallReadRows_(sheet, ncol) {
   return sheet.getRange(n-count+2,1,count,ncol).getDisplayValues();
 }
 
+function wallFingerprint_(title, text) {
+  const contents = String(title || '') + '\u241f' + String(text || '');
+  const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, contents, Utilities.Charset.UTF_8);
+  return Utilities.base64EncodeWebSafe(digest);
+}
+
 function wallSaveText_(value) {
   const txt = String(value == null ? '' : value).trim();
   if (txt.length > WALL_MAX_TEXT) throw new Error('展示文字不得超過 800 字。');
@@ -90,7 +96,7 @@ function wallGetData() {
   const source = ss.getSheetByName(WALL_SOURCE_TAB);
   const review = wallReviewSheet_(ss);
   const reviewMap = Object.create(null);
-  wallReadRows_(review, 9).forEach(row => {
+  wallReadRows_(review, 11).forEach(row => {
     const id = String(row[0] || '');
     if (id) reviewMap[id] = row;
   });
@@ -108,8 +114,8 @@ function wallGetData() {
       biasText: wallRawText_(row[6]),
       resourceOption: wallRawText_(row[7]),
       resourceText: wallRawText_(row[8]),
-      biasApproved: note[1] === '是',
-      resourceApproved: note[2] === '是',
+      biasApproved: note[1] === '是' && note[9] === wallFingerprint_(row[5], row[6]),
+      resourceApproved: note[2] === '是' && note[10] === wallFingerprint_(row[7], row[8]),
       biasPublic: wallRawText_(note[3]),
       resourcePublic: wallRawText_(note[4]),
       biasTitle: wallRawText_(note[5]),
@@ -157,21 +163,23 @@ function wallSaveApproval(input) {
       ? review.getRange(2,1,reviewEnd-1,1).createTextFinder(id).matchEntireCell(true).findNext()
       : null;
     const at = foundReview ? foundReview.getRow() : reviewEnd + 1;
-    const prior = foundReview ? review.getRange(at,1,1,9).getValues()[0] :
-      [id,'否','否','','','','','',teacher];
+    const prior = foundReview ? review.getRange(at,1,1,11).getValues()[0] :
+      [id,'否','否','','','','','',teacher,'',''];
     prior[0] = id;
     if (topic === 'bias') {
       prior[1] = approve ? '是' : '否';
       prior[3] = edit;
       prior[5] = wallSaveText_(title);
+      prior[9] = wallFingerprint_(title, response);
     } else {
       prior[2] = approve ? '是' : '否';
       prior[4] = edit;
       prior[6] = wallSaveText_(title);
+      prior[10] = wallFingerprint_(title, response);
     }
     prior[7] = new Date();
     prior[8] = teacher;
-    review.getRange(at,1,1,9).setValues([prior]);
+    review.getRange(at,1,1,11).setValues([prior]);
     SpreadsheetApp.flush();
     return {ok:true};
   } finally {
